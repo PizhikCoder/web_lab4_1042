@@ -1,21 +1,36 @@
 package lab4.database.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
-
-import java.util.List;
+import lab4.connection.dto.UserDTO;
+import lab4.exception.InvalidUserCredentialsException;
+import lombok.Getter;
 
 @Entity
-@Data
 @Table(name = "Users")
 public class UserEntity {
     @Id
-    private String login;
+    @Getter
+    private String username;
 
     @Column(nullable = false)
+    @Getter
     private String password;
 
-//    @OneToMany(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "ownerLogin", referencedColumnName = "login")
-//    private List<DotEntity> dots;
+    public UserEntity() {
+    }
+
+    public UserEntity(UserDTO userDTO) throws InvalidUserCredentialsException {
+        setUsername(userDTO.getUsername());
+        setPassword(userDTO.getPassword());
+    }
+
+    public void setUsername(String username) throws InvalidUserCredentialsException {
+        if (username == null) throw new InvalidUserCredentialsException();
+        this.username = username;
+    }
+
+    public void setPassword(String password) throws InvalidUserCredentialsException {
+        if (password == null) throw new InvalidUserCredentialsException();
+        this.password = password;
+    }
 }

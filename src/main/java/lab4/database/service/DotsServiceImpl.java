@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @Primary
 public class DotsServiceImpl implements IDotsService {
@@ -19,7 +21,17 @@ public class DotsServiceImpl implements IDotsService {
     }
 
     @Override
-    public void saveDot(DotEntity dot) {
+    public synchronized void saveDot(DotEntity dot) {
         repository.save(dot);
+    }
+
+    @Override
+    public synchronized void clearDots(String username) {
+        repository.removeAllByOwnerLogin(username);
+    }
+
+    @Override
+    public List<DotEntity> getAllDots(String username) {
+        return repository.getAllByOwnerLogin(username);
     }
 }

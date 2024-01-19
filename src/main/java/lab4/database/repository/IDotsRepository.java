@@ -9,5 +9,6 @@ import java.util.List;
 
 @Repository
 public interface IDotsRepository extends CrudRepository<DotEntity, Long> {
-    List<DotEntity> findDotEntitiesByOwnerLogin(String ownerLogin);
+    void removeAllByOwnerLogin(String ownerLogin);
+    List<DotEntity> getAllByOwnerLogin(String ownerLogin);
 }

@@ -1,6 +1,7 @@
 package lab4.database.entity;
 
 import jakarta.persistence.*;
+import lab4.connection.dto.DotDTO;
 import lombok.Data;
 
 
@@ -32,4 +33,14 @@ public class DotEntity {
 
     @Column(nullable = false)
     private String ownerLogin;
+
+    public DotEntity(DotDTO dotDTO){
+        this.setX(dotDTO.getX());
+        this.setY(dotDTO.getY());
+        this.setR(dotDTO.getR());
+        this.setTime(dotDTO.getTime());
+        this.setExecTime(dotDTO.getExecTime());
+        this.setResult(dotDTO.isResult());
+        this.setOwnerLogin(dotDTO.getOwnerLogin());
+    }
 }

@@ -1,30 +1,43 @@
 package lab4.config;
 
 import jakarta.persistence.EntityManagerFactory;
+import jakarta.servlet.http.HttpServletResponse;
+import lab4.security.filter.JwtFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import javax.sql.DataSource;
-import java.util.List;
 
 @Configuration
 @ComponentScan("lab4")
 @EnableWebMvc
+@EnableWebSecurity
 @EnableJpaRepositories(basePackages = "lab4.database.repository")
 @PropertySource("classpath:hibernate.cfg")
 public class ApplicationConfig implements WebMvcConfigurer {
+    private final int COOKIE_MAX_AGE = 3600;
 
     @Value("${username}")
     private String USERNAME;
@@ -37,6 +50,14 @@ public class ApplicationConfig implements WebMvcConfigurer {
 
     @Value("${url}")
     private String DB_URL;
+
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/api/**")
+                .allowedOrigins("http://localhost:3000")
+                .allowedMethods("GET")
+                .allowCredentials(true).maxAge(COOKIE_MAX_AGE);
+    }
 
     @Bean
     public DataSource dataSource() {
@@ -66,5 +87,42 @@ public class ApplicationConfig implements WebMvcConfigurer {
         JpaTransactionManager txManager = new JpaTransactionManager();
         txManager.setEntityManagerFactory(entityManagerFactory);
         return txManager;
+    }
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
+        httpSecurity
+//                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(
+                        (ar) ->
+                        {
+                            ar.requestMatchers("/api/auth/**").permitAll();
+                            ar.requestMatchers("/api/dots/**").authenticated();
+                            ar.anyRequest().authenticated();
+                        }
+                );
+//        httpSecurity.exceptionHandling(exceptionHandlingConfigurer -> exceptionHandlingConfigurer.authenticationEntryPoint(
+//                (request, response, exception) -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED,
+//                        exception.getMessage())
+//        ));
+//        httpSecurity.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        httpSecurity.addFilterAfter(getJWTAuthFilter(), UsernamePasswordAuthenticationFilter.class);
+//        httpSecurity.httpBasic(Customizer.withDefaults());
+        return httpSecurity.build();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
+
+    @Bean
+    public BCryptPasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public JwtFilter getJWTAuthFilter() {
+        return new JwtFilter();
     }
 }

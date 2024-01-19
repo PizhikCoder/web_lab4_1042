@@ -1,5 +1,6 @@
 package lab4.dotslogic.interfaces;
 
-public interface Validator<T> {
+@FunctionalInterface
+public interface IValidator<T> {
     boolean validate(T value);
 }

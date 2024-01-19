@@ -2,7 +2,7 @@ package lab4.dotslogic.checkers;
 
 
 import lab4.connection.dto.DotDTO;
-import lab4.dotslogic.interfaces.Validator;
+import lab4.dotslogic.interfaces.IValidator;
 import lab4.exception.DotLimitsException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -12,14 +12,14 @@ import org.springframework.web.context.annotation.ApplicationScope;
 @Service
 @ApplicationScope
 public class DotChecker {
-    private final Validator<Short> xValidator;
-    private final Validator<Short> yValidator;
-    private final Validator<Short> rValidator;
+    private final IValidator<Short> xValidator;
+    private final IValidator<Short> yValidator;
+    private final IValidator<Short> rValidator;
     private final AreaChecker areaChecker;
 
-    public DotChecker(@Qualifier("xValidator") Validator<Short> xValidator,
-                      @Qualifier("yValidator") Validator<Short> yValidator,
-                      @Qualifier("rValidator") Validator<Short> rValidator,
+    public DotChecker(@Qualifier("xValidator") IValidator<Short> xValidator,
+                      @Qualifier("yValidator") IValidator<Short> yValidator,
+                      @Qualifier("rValidator") IValidator<Short> rValidator,
                       @Autowired AreaChecker areaChecker) {
         this.xValidator = xValidator;
         this.yValidator = yValidator;
