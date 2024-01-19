@@ -2,6 +2,7 @@ package lab4.connection.controller;
 
 
 import jakarta.servlet.http.HttpServletRequest;
+import lab4.audit.MakeLog;
 import lab4.connection.HttpCodes;
 import lab4.connection.RequestAttribute;
 import lab4.connection.dto.DotDTO;
@@ -62,6 +63,7 @@ public class DotsController {
         }
     }
 
+    @MakeLog
     @GetMapping("/getAllDots")
     public ResponseEntity<DotDTO[]> getAllDots(HttpServletRequest request) {
         final String username = request.getAttribute(RequestAttribute.USERNAME.getName()).toString();

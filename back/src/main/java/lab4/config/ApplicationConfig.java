@@ -3,10 +3,7 @@ package lab4.config;
 import jakarta.persistence.EntityManagerFactory;
 import lab4.security.filter.JwtFilter;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.*;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.jpa.JpaTransactionManager;
@@ -32,6 +29,7 @@ import javax.sql.DataSource;
 @EnableWebSecurity
 @EnableJpaRepositories(basePackages = "lab4.database.repository")
 @PropertySource("classpath:hibernate.cfg")
+@EnableAspectJAutoProxy
 public class ApplicationConfig implements WebMvcConfigurer {
     private final int COOKIE_MAX_AGE = 3600;
 
